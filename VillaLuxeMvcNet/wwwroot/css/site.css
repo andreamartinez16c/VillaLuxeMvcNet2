@@ -1,0 +1,44 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+/*-----------------------------------------------------------------------------------------*/
+
+#container1 {
+    background-image: url('../img/villaContainer1.jpg');
+    background-size: cover; /* para ajustar la imagen al tamaño del contenedor */
+    background-position: center; /* para centrar la imagen */
+    padding: 50px; /* ajusta el padding según sea necesario */
+    position: relative;
+}
+
+#container2 {
+    background-image: url('../img/villaContainer2.jpg');
+    background-size: cover; /* para ajustar la imagen al tamaño del contenedor */
+    background-position: center; /* para centrar la imagen */
+    padding: 50px; /* ajusta el padding según sea necesario */
+    position: relative;
+}
+
+#container3 {
+    background-image: url('../img/villaContainer3.jpg');
+    background-size: cover; /* para ajustar la imagen al tamaño del contenedor */
+    background-position: center; /* para centrar la imagen */
+    padding: 50px; /* ajusta el padding según sea necesario */
+    position: relative;
+}

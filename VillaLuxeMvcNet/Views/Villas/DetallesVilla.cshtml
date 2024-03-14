@@ -1,0 +1,58 @@
+﻿@model Villa
+
+@if (TempData["ReservaConfirmada"] != null)
+{
+        <div class="alert alert-success" role="alert">
+        @TempData["ReservaConfirmada"]
+        </div>
+}
+
+<h1 style="text-align: center">@Model.Nombre</h1>
+<div style="display: flex; justify-content: center;">
+    <img  style="width: 80%" src="~/img/@Model.ImageneCollage"/>
+</div>
+<div class="main-container">
+<div class="containerDetalle">
+  <h3>PEQUEÑA DESCRIPCION</h3>
+  <h6>@Model.Descripcion</h6>
+  <h4>COMODIDADES</h4>
+  <h6>@Model.Comodidades</h6>
+  <div class="small-box">
+    <small><i class="fa fa-location-dot  mr-2"></i>  @Model.Direccion, @Model.Ubicacion</small>
+  </div>
+  <div class="small-box">
+    <small><i class="fa fa-user  mr-2"></i>  @Model.Personas Personas</small>
+  </div>
+  <div class="small-box">
+    <small><i class="fa fa-bed  mr-2"></i>  @Model.NumHabitaciones Habitaciones</small>
+  </div>
+  <div class="small-box">
+    <small><i class="fa fa-bath  mr-2"></i>  @Model.NumBanios Baños</small>
+  </div>
+</div>
+<div class="form-container">
+<div style="display: flex; justify-content: center;">
+        <form class="form" method="post">
+            <p class="title">Reserva </p> 
+            <input type="hidden" name="idvilla" value="@Model.IdVilla" />
+            <span>Fecha Inicio</span>
+            <label  for="start-date">
+                <input required="" placeholder=" " value="" type="date" class="input"  id="start-date" name="fechainicio">
+            </label>
+            <span>Fecha Fin</span>
+            <label for="end-date">
+                <input required="" placeholder="aa" type="date" class="input"  id="end-date" name="fechafin">
+            </label>
+
+            <label for="price-per-night">
+                <span>Precio por noche: @Model.PrecioNoche€/noche</span>
+            </label>
+
+            <button class="submit">Reservar</button>
+            
+        </form>
+        </div>
+  <div id="total-price"></div>
+</div>
+</div>
+</div>
