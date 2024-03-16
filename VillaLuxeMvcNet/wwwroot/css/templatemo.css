@@ -403,3 +403,8 @@ form {
     }
 }
 
+.unavailable-date {
+    background-color: red;
+    color: #999; /* Color de las fechas no disponibles */
+    pointer-events: none; /* Deshabilita la interacción del usuario con las fechas no disponibles */
+}

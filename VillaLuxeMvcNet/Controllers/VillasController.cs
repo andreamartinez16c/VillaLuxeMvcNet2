@@ -25,23 +25,43 @@ namespace VillaLuxeMvcNet.Controllers
         }
 
         //----------------RESERVAS---------------
-        /*public async Task<IActionResult> CreateReserva()
-        {
-            return View();
-        }*/
 
-       [HttpPost]
+        /*[HttpPost]
+         public async Task<IActionResult> DetallesVilla(Reserva reserva)
+         {
+             await this.repo.CreateReserva(reserva);
+
+             // Configurar un mensaje de confirmación en TempData
+             TempData["ReservaConfirmada"] = "¡Reserva realizada con éxito!";
+
+             // Redirigir de vuelta a la vista DetallesVilla
+             Villa villa = await this.repo.FindVillaAsync(reserva.IdVilla);
+             return View(villa);
+
+         }*/
+
+        [HttpPost]
         public async Task<IActionResult> DetallesVilla(Reserva reserva)
         {
-            await this.repo.CreateReserva(reserva);
+            try
+            {
+                await this.repo.CreateReserva(reserva);
 
-            // Configurar un mensaje de confirmación en TempData
-            TempData["ReservaConfirmada"] = "¡Reserva realizada con éxito!";
+                // Configurar un mensaje de confirmación en TempData
+                TempData["ReservaConfirmada"] = "¡Reserva realizada con éxito!";
 
-            // Redirigir de vuelta a la vista DetallesVilla
-            Villa villa = await this.repo.FindVillaAsync(reserva.IdVilla);
-            return View(villa);
+                // Redirigir de vuelta a la vista DetallesVilla
+                return RedirectToAction("DetallesVilla", new { idvilla = reserva.IdVilla });
+            }
+            catch (Exception ex)
+            {
+                // Configurar un mensaje de error en TempData
+                TempData["ErrorReserva"] = ex.Message;
 
+                // Redirigir de vuelta a la vista DetallesVilla
+                return RedirectToAction("DetallesVilla", new { idvilla = reserva.IdVilla });
+            }
         }
+
     }
 }

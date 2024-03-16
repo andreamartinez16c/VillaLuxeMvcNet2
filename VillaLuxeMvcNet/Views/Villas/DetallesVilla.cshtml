@@ -7,6 +7,14 @@
         </div>
 }
 
+@if (TempData["ErrorReserva"] != null)
+{
+        <div class="alert alert-danger" role="alert">
+        @TempData["ErrorReserva"]
+        </div>
+}
+
+
 <h1 style="text-align: center">@Model.Nombre</h1>
 <div style="display: flex; justify-content: center;">
     <img  style="width: 80%" src="~/img/@Model.ImageneCollage"/>
@@ -56,3 +64,45 @@
 </div>
 </div>
 </div>
+
+
+@section Scripts{
+        <script>
+        window.onload = function() {
+            // Obtener la fecha actual en formato "YYYY-MM-DD"
+            var today = new Date().toISOString().split('T')[0];
+
+            // Establecer la fecha mínima como la fecha actual
+            document.getElementById("start-date").min = today;
+            document.getElementById("end-date").min = today;
+
+            // Deshabilitar las fechas no disponibles
+            disableUnavailableDates();
+        };
+
+        function disableUnavailableDates() {
+            // Supongamos que tienes un array de fechas no disponibles en el formato "YYYY-MM-DD"
+            var fechasNoDisponibles = ["2024-03-20", "2024-03-25", "2024-03-28"];
+
+            // Iterar sobre las fechas no disponibles y deshabilitarlas
+            //fechasNoDisponibles.forEach(function(fecha) {
+                var fechaElement = document.querySelector('input[type="date"]');
+                if (fechaElement) {
+                    fechaElement.addEventListener('input', function() {
+                        var fechaSeleccionada = new Date(this.value);
+                        var fechaDeshabilitada = new Date(fecha);
+                        fechaDeshabilitada.setDate(fechaDeshabilitada.getDate() + 1); // Incrementar la fecha en 1 para que esté realmente deshabilitada
+
+                        // Si la fecha seleccionada coincide con una fecha no disponible, agregar la clase 'unavailable-date'
+                        if (fechaSeleccionada.getTime() === fechaDeshabilitada.getTime()) {
+                            this.classList.add('unavailable-date');
+                        } else {
+                            this.classList.remove('unavailable-date');
+                        }
+                    });
+                }
+            //});
+        }
+    </script>
+
+}
