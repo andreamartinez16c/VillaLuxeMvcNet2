@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VillaLuxeMvcNet.Models
 {
-    [Table("Reservas")]
-    public class Reserva
+    [Table("v_misreservas")]
+    public class MisReservas
     {
         [Key]
         [Column("idreserva")]
@@ -28,5 +28,17 @@ namespace VillaLuxeMvcNet.Models
 
         [Column("estado")]
         public string Estado { get; set; }
+
+        [Column("nombre")]
+        public string Nombre { get; set; }
+
+        [Column("direccion")]
+        public string Direccion { get; set; }
+
+        [Column("ubicacion")]
+        public string Ubicacion { get; set; }
+
+        [Column("imagen")]
+        public string Imagen { get; set; }
     }
 }

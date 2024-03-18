@@ -81,25 +81,8 @@ namespace VillaLuxeMvcNet.Repositories
             return await this.context.Reservas.MaxAsync(c => c.IdReserva) + 1;
         }
 
-        /*public async Task CreateReserva(Reserva reserva )
-        {
-            int id = await GetMaxId();
-            reserva.IdReserva = id;
-            reserva.IdUsuario = 1;
-            Villa villa = await context.Villas.FindAsync(reserva.IdVilla);
-            int cantidadDias = (reserva.FechaFin - reserva.FechaInicio).Days;
-            decimal precioPorNoche = villa.PrecioNoche;
-            decimal precioTotal = precioPorNoche * cantidadDias;
-            reserva.PrecioTotal = precioTotal;
-            reserva.Estado = "EN PROCESO";
-            Reserva res = reserva;
 
-            this.context.Reservas.Add( res );
-            this.context.SaveChanges();
-        }*/
-
-
-        public async Task CreateReserva(Reserva reserva)
+        public async Task CreateReserva(Reserva reserva, int idusuario)
         {
             // Verificar disponibilidad de fechas
             bool fechasDisponibles = await CheckFechasDisponibles(reserva.IdVilla, reserva.FechaInicio, reserva.FechaFin);
@@ -108,7 +91,7 @@ namespace VillaLuxeMvcNet.Repositories
             {
                 int id = await GetMaxId();
                 reserva.IdReserva = id;
-                reserva.IdUsuario = 1; // Aquí deberías establecer el ID del usuario real
+                reserva.IdUsuario = idusuario; // Aquí deberías establecer el ID del usuario real
                 Villa villa = await context.Villas.FindAsync(reserva.IdVilla);
                 int cantidadDias = (reserva.FechaFin - reserva.FechaInicio).Days;
                 decimal precioPorNoche = villa.PrecioNoche;
@@ -140,6 +123,50 @@ namespace VillaLuxeMvcNet.Repositories
 
             // Si no hay reservas superpuestas, las fechas están disponibles
             return reservasSuperpuestas.Count == 0;
+        }
+
+        public async Task<List<Reserva>> GetReservasByIdVillaAsync(int idVilla)
+        {
+            return await this.context.Reservas.Where(x => x.IdVilla == idVilla).ToListAsync();
+        }
+        public async Task <List<DateTime>> GetFechasReservadasByIdVillaAsync(int idVilla)
+        {
+            List<DateTime> list = new List<DateTime>();
+            List<Reserva> listaReservas = await this.GetReservasByIdVillaAsync(idVilla);
+            foreach (var item in listaReservas)
+            {
+                int totalDias= item.FechaFin.Subtract(item.FechaInicio).Days;
+                list.Add(item.FechaInicio);
+                for(int i = 1; i <= totalDias; i++)
+                {
+                    list.Add(item.FechaInicio.AddDays(i));
+                }
+            }
+            
+            return list;
+        }
+
+        public async Task<List<MisReservas>> GetMisReservas(int idusuario)
+        {
+            return await context.MisReservas
+                .Where(r => r.IdUsuario == idusuario)
+                .ToListAsync();
+        }
+
+        public async Task<Reserva> FindReserva(int idReserva)
+        {
+            return await this.context.Reservas.FirstOrDefaultAsync(
+                x => x.IdReserva == idReserva);
+        }
+
+        public async Task DeleteReserva(int idReserva)
+        {
+            Reserva reserva = await this.FindReserva(idReserva);
+            if (reserva != null)
+            {
+                this.context.Reservas.Remove(reserva);
+                await this.context.SaveChangesAsync();
+            }
         }
 
     }

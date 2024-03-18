@@ -1,0 +1,42 @@
+﻿@model List<MisReservas>
+@if(Model == null)
+{
+     <div class="containerReservas">
+        @foreach (var reserva in Model)
+        {
+                <div class="cardReservas"> 
+                        <div class="headerReservas">
+                            <div class="div_image_vReservas" style="background-image: url('../img/@reserva.Imagen') !important;">
+                            <div class="imageReservas">
+                                <i class="fa-solid fa-check"></i>
+                            </div> 
+                        </div> 
+                        <div class="contentReservas">
+                             <span class="titleReservas">@reserva.Nombre</span> 
+                             <p class="messageReservas">@($"{reserva.FechaInicio.ToString("dd/MM/yyyy")} - {reserva.FechaFin.ToString("dd/MM/yyyy")}")</p> 
+                             <p class="messageReservas">Precio total: @reserva.PrecioTotal</p> 
+                             <p class="messageReservas">@($"{reserva.Direccion} - {reserva.Ubicacion}")</p>
+                        @if (reserva.Estado == "EN PROCESO")
+                        {
+                                            <p class="btn btn-success">EN PROCESO</p>
+
+                                    <p class="signin">¿Quieres cancelar?</p>
+                                    <a asp-controller="Villas" asp-action="DeleteReserva" asp-route-idReserva="@reserva.IdReserva" class="btn btn-danger">Cancelar Reserva</a>
+                        }
+                        else
+                        {
+                                    <p class="btn btn-success">FINALIZADA</p>
+                        }
+
+                        </div> 
+                    </div> 
+                </div>
+        }
+    </div>
+}
+else
+{
+    <div style="height:300px">
+         <h1 class="h1" style="padding-top:20px; text-align:center">No hay reserva todavía!!</h1>
+    </div>
+}

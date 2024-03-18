@@ -2,6 +2,14 @@
     ViewData["Title"] = "Home Page";
 }
 
+@if (TempData["BienvenidaUsuario"] != null)
+{
+        <div class="alert alert-success">
+        @TempData["BienvenidaUsuario"]
+        </div>
+}
+
+
     <!-- Start Banner Hero -->
     <div id="template-mo-zay-hero-carousel" class="carousel slide" data-bs-ride="carousel">
         <ol class="carousel-indicators">
@@ -107,10 +115,10 @@
                 </p>
             </div>
             <div class="col-12 col-md-4 p-6 mt-3">
-                <a href="#"><img src="~/img/villa5_1.jpg" class="img-fluid border"></a>
+                <a href="#"><img src="~/img/villa4_1.jpg" class="img-fluid border"></a>
                 <h2 class="h5 text-center mt-3 mb-3">Villa Binimi</h2>
                 <p class="text-center">
-                    <a class="btn btn-danger" asp-controller="Villas" asp-action="DetallesVilla" asp-route-idvilla="5">
+                    <a class="btn btn-danger" asp-controller="Villas" asp-action="DetallesVilla" asp-route-idvilla="4">
                         Detalles
                     </a>
                 </p>

@@ -53,56 +53,85 @@
             </label>
 
             <label for="price-per-night">
-                <span>Precio por noche: @Model.PrecioNoche€/noche</span>
+                <span>Precio: <b>@Model.PrecioNoche€/noche</b></span>
             </label>
 
             <button class="submit">Reservar</button>
             
         </form>
-        </div>
+</div>
   <div id="total-price"></div>
 </div>
 </div>
 </div>
 
 
-@section Scripts{
+@section Scripts {
         <script>
-        window.onload = function() {
-            // Obtener la fecha actual en formato "YYYY-MM-DD"
-            var today = new Date().toISOString().split('T')[0];
+            $(document).ready(function () {
+                // Obtener la fecha actual en formato "YYYY-MM-DD"
+                var today = new Date().toISOString().split('T')[0];
 
-            // Establecer la fecha mínima como la fecha actual
-            document.getElementById("start-date").min = today;
-            document.getElementById("end-date").min = today;
+                // Establecer la fecha mínima como la fecha actual
+                document.getElementById("start-date").min = today;
+                document.getElementById("end-date").min = today;
 
-            // Deshabilitar las fechas no disponibles
-            disableUnavailableDates();
-        };
+                // Obtener las fechas de inicio y fin seleccionadas
+                var startDate = document.getElementById("start-date").value;
+                var endDate = document.getElementById("end-date").value;
 
-        function disableUnavailableDates() {
-            // Supongamos que tienes un array de fechas no disponibles en el formato "YYYY-MM-DD"
-            var fechasNoDisponibles = ["2024-03-20", "2024-03-25", "2024-03-28"];
+                // Llamada AJAX inicial para verificar disponibilidad y obtener fechas no disponibles
+                $.ajax({
+                    url: "/Villas/CheckFechasDisponibles",
+                    type: "POST",
+                    data: {
+                        startDate: startDate,
+                        endDate: endDate
+                    },
+                    success: function (result) {
+                        // Fechas no disponibles obtenidas desde el controlador
+                        var unavailableDates = result.unavailableDates;
 
-            // Iterar sobre las fechas no disponibles y deshabilitarlas
-            //fechasNoDisponibles.forEach(function(fecha) {
-                var fechaElement = document.querySelector('input[type="date"]');
-                if (fechaElement) {
-                    fechaElement.addEventListener('input', function() {
-                        var fechaSeleccionada = new Date(this.value);
-                        var fechaDeshabilitada = new Date(fecha);
-                        fechaDeshabilitada.setDate(fechaDeshabilitada.getDate() + 1); // Incrementar la fecha en 1 para que esté realmente deshabilitada
+                        // Deshabilitar las fechas no disponibles en el calendario
+                        $("#start-date, #end-date").datepicker({
+                            beforeShowDay: function (date) {
+                                var stringDate = jQuery.datepicker.formatDate('yy-mm-dd', date);
+                                return [unavailableDates.indexOf(stringDate) === -1];
+                            }
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
 
-                        // Si la fecha seleccionada coincide con una fecha no disponible, agregar la clase 'unavailable-date'
-                        if (fechaSeleccionada.getTime() === fechaDeshabilitada.getTime()) {
-                            this.classList.add('unavailable-date');
-                        } else {
-                            this.classList.remove('unavailable-date');
+                // Evento change para las fechas de inicio y fin
+                $("#start-date, #end-date").change(function () {
+                    // Obtener las fechas de inicio y fin seleccionadas nuevamente
+                    var startDate = document.getElementById("start-date").value;
+                    var endDate = document.getElementById("end-date").value;
+
+                    // Llamada AJAX para verificar disponibilidad y obtener fechas no disponibles
+                    $.ajax({
+                        url: "/Villas/CheckFechasDisponibles",
+                        type: "POST",
+                        data: {
+                            startDate: startDate,
+                            endDate: endDate
+                        },
+                        success: function (result) {
+                            // Fechas no disponibles obtenidas desde el controlador
+                            var unavailableDates = result.unavailableDates;
+
+                            // Deshabilitar las fechas no disponibles en el calendario
+                            $("#start-date, #end-date").datepicker("refresh");
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
                         }
                     });
-                }
-            //});
-        }
-    </script>
-
+                });
+            });
+        </script>
 }
+

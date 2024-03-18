@@ -6,9 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
 
 string connectionString = builder.Configuration.GetConnectionString("SqlServerVillas");
 builder.Services.AddTransient<RepositoryVillas>();
+builder.Services.AddTransient<RepositotyUsuarios>();
 builder.Services.AddDbContext<VillaContext>
 	(options => options.UseSqlServer(connectionString));
 
@@ -34,6 +37,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllerRoute(
 	name: "default",

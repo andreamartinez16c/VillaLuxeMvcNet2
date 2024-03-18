@@ -37,9 +37,6 @@ namespace VillaLuxeMvcNet.Models
         [Column("precionoche")]
         public decimal PrecioNoche { get; set; }
 
-        [Column("nombre_usuario")]
-        public string NombreUsuario { get; set; }
-
         [Column("nombre_provincia")]
         public string NombreProvincia { get; set; }
 
