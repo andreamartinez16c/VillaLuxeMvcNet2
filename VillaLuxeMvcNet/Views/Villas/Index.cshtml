@@ -1,10 +1,39 @@
 ﻿@model List<Villa>
 
+@{
+    List<Provincias> provincias = await this.repo.GetProvincias();
+}
+
+@if (TempData["VillaCreada"] != null)
+{
+                <div class="alert alert-success" role="alert">
+        @TempData["VillaCreada"]
+                </div>
+}
+
+@if (TempData["VillaModificada"] != null)
+{
+            <div class="alert alert-success" role="alert">
+        @TempData["VillaModificada"]
+            </div>
+}
+
+@if (TempData["ErrorVilla"] != null)
+{
+            <div class="alert alert-danger" role="alert">
+        @TempData["ErrorVilla"]
+            </div>
+}
+
 <div class="container-fluid py-5" style="    padding-top: 0rem !important;">
     <div class="container pt-5 pb-3">
         <div class="text-center mb-3 pb-3">
             <h6 class="text-success text-uppercase" style="letter-spacing: 5px;">Villas</h6>
             <h1>Nuestras Villas</h1>
+            @if (Context.Session.GetInt32("IDUSUARIO") != null && Context.Session.GetInt32("IDROL") == 2)
+            {
+                <a class="text-decoration-none submit" asp-controller="Villas" asp-action="CreateVilla">Crear Nueva Villa</a>
+            }
         </div>
         <div class="row">
             @foreach (Villa villa in Model){
@@ -29,70 +58,27 @@
                                     <h5 class="m-0">@villa.PrecioNoche €/noche</h5>
                                 </div>
                             </div>
+                            @if (Context.Session.GetInt32("IDUSUARIO") != null && Context.Session.GetInt32("IDROL") == 2)
+                            {
+                               <hr />
+                               <div style="text-align: center;">
+                                    <a class="text-decoration-none submit" asp-controller="Villas" asp-action="AllReservasVilla" asp-route-idvilla="@villa.IdVilla">
+                                        Reservas
+                                    </a>
+                                    &nbsp; <!-- Espacio entre los botones -->
+                                    <a class="text-decoration-none submit" asp-controller="Villas" asp-action="EditVillas" asp-route-idvilla="@villa.IdVilla">
+                                        Modificar
+                                    </a>
+                                    &nbsp; <!-- Espacio entre los botones -->
+                                    <a class="text-decoration-none submit" asp-controller="Villas" asp-action="DeleteVilla" asp-route-idvilla="@villa.IdVilla">
+                                        Eliminar
+                                    </a>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
             }
-
-
-            @* 
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="package-item bg-white mb-2">
-                    <img class="img-fluid" src="~/img/villa1_1.jpg" alt="">
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between mb-3">
-                            <small class="m-0"><i class="fa fa-map-marker-alt text-icons mr-2"></i> Mallorca</small>
-                            <small class="m-0"><i class="fa fa-bed text-icons mr-2"></i> 6 Room</small>
-                            <small class="m-0"><i class="fa fa-user text-icons mr-2"></i> 12 Person</small>
-                        </div>
-                        <a class="h5 text-decoration-none" href="">Villa Barcares</a>
-                        <div class="border-top mt-4 pt-4">
-                            <div class="d-flex justify-content-end">
-                                <!-- <h6 class="m-0"><i class="fa fa-star text-primary mr-2"></i>4.5 <small>(250)</small></h6> -->
-                                <h5 class="m-0">350€/noche</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> 
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="package-item bg-white mb-2">
-                    <img class="img-fluid" src="~/img/villa2_1.jpg" alt="">
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between mb-3">
-                            <small class="m-0"><i class="fa fa-map-marker-alt text-icons mr-2"></i> Marbella</small>
-                            <small class="m-0"><i class="fa fa-bed text-icons mr-2"></i> 7 Room</small>
-                            <small class="m-0"><i class="fa fa-user text-icons mr-2"></i> 14 Person</small>
-                        </div>
-                        <a class="h5 text-decoration-none" href="">Villa Soulhouse</a>
-                        <div class="border-top mt-4 pt-4">
-                            <div class="d-flex justify-content-end">
-                                <!-- <h6 class="m-0"><i class="fa fa-star text-primary mr-2"></i>4.5 <small>(250)</small></h6> -->
-                                <h5 class="m-0">2447€/noche</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="package-item bg-white mb-2">
-                    <img class="img-fluid" src="~/img/villa2_2.jpg" alt="">
-                    <div class="p-3">
-                        <div class="d-flex justify-content-between mb-3">
-                            <small class="m-0"><i class="fa fa-map-marker-alt text-icons mr-2"></i> Benalmadena</small>
-                            <small class="m-0"><i class="fa fa-bed text-icons mr-2"></i> 5 Room</small>
-                            <small class="m-0"><i class="fa fa-user text-icons mr-2"></i> 12 Person</small>
-                        </div>
-                        <a class="h5 text-decoration-none" href="">Villa Cliff</a>
-                        <div class="border-top mt-4 pt-4">
-                            <div class="d-flex justify-content-end">
-                                <!-- <h6 class="m-0"><i class="fa fa-star text-primary mr-2"></i>4.5 <small>(250)</small></h6> -->
-                                <h5 class="m-0">400€/noche</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> *@
         </div>
     </div>
 </div>

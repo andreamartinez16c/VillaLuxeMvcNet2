@@ -59,6 +59,14 @@ namespace VillaLuxeMvcNet.Repositories
             return await consulta.ToListAsync();
         }*/
 
+        public async Task<VillaTabla> FindVillaTAsync(int idvilla)
+        {
+            var consulta = from datos in this.context.VillasT
+                           where datos.IdVilla == idvilla
+                           select datos;
+            return await consulta.FirstOrDefaultAsync();
+        }
+        
         public async Task<Villa> FindVillaAsync(int idvilla)
         {
             var consulta = from datos in this.context.Villas
@@ -74,7 +82,7 @@ namespace VillaLuxeMvcNet.Repositories
             return await consulta.ToListAsync();
         }
 
-        public async Task<int> GetMaxId()
+        public async Task<int> GetMaxIdReserva()
         {
             if (await this.context.Reservas.CountAsync() == 0)
                 return 1;
@@ -84,12 +92,16 @@ namespace VillaLuxeMvcNet.Repositories
 
         public async Task CreateReserva(Reserva reserva, int idusuario)
         {
+            if (reserva.FechaFin <= reserva.FechaInicio)
+            {
+                throw new Exception("La fecha de fin debe ser posterior a la fecha de inicio.");
+            }
             // Verificar disponibilidad de fechas
             bool fechasDisponibles = await CheckFechasDisponibles(reserva.IdVilla, reserva.FechaInicio, reserva.FechaFin);
 
             if (fechasDisponibles)
             {
-                int id = await GetMaxId();
+                int id = await GetMaxIdReserva();
                 reserva.IdReserva = id;
                 reserva.IdUsuario = idusuario; // Aquí deberías establecer el ID del usuario real
                 Villa villa = await context.Villas.FindAsync(reserva.IdVilla);
@@ -148,9 +160,17 @@ namespace VillaLuxeMvcNet.Repositories
 
         public async Task<List<MisReservas>> GetMisReservas(int idusuario)
         {
-            return await context.MisReservas
+            List<MisReservas> list = await context.MisReservas
                 .Where(r => r.IdUsuario == idusuario)
                 .ToListAsync();
+            if (list.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return list;
+            }
         }
 
         public async Task<Reserva> FindReserva(int idReserva)
@@ -169,6 +189,108 @@ namespace VillaLuxeMvcNet.Repositories
             }
         }
 
+        public async Task DeleteVilla(int idVilla)
+        {
+            VillaTabla villa = await this.FindVillaTAsync(idVilla);
+            if(villa != null)
+            {
+                this.context.VillasT.Remove(villa);
+                await this.context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<MisReservas>> GetReservasByIdVillaVistaAsync(int idVilla)
+        {
+            return await this.context.MisReservas.Where(x => x.IdVilla == idVilla).ToListAsync();
+        }
+
+        public async Task<int> GetMaxVilla()
+        {
+            if (await this.context.VillasT.CountAsync() == 0)
+                return 1;
+            return await this.context.VillasT.MaxAsync(c => c.IdVilla) + 1;
+        }
+        public async Task<VillaTabla> CreateVillaAsync(VillaTabla villa)
+        {
+            villa.IdVilla = await GetMaxVilla();
+            context.VillasT.Add(villa);
+            await context.SaveChangesAsync();
+            return villa;
+        }
+
+        public async Task EditVilla(VillaTabla villa)
+        {
+            // Buscar la villa existente en la base de datos
+            var villaExistente = await context.VillasT.FindAsync(villa.IdVilla);
+
+                // Actualizar los campos de la villa con los valores proporcionados
+                villaExistente.Nombre = villa.Nombre;
+                villaExistente.Direccion = villa.Direccion;
+                villaExistente.Descripcion = villa.Descripcion;
+                villaExistente.Comodidades = villa.Comodidades;
+                villaExistente.Personas = villa.Personas;
+                villaExistente.NumHabitaciones = villa.NumHabitaciones;
+                villaExistente.NumBanios = villa.NumBanios;
+                villaExistente.Ubicacion = villa.Ubicacion;
+                villaExistente.PrecioNoche = villa.PrecioNoche;
+                villaExistente.IdProvincia = villa.IdProvincia;
+                villaExistente.ImagenCollage = villa.ImagenCollage;
+
+                // Guardar los cambios en la base de datos
+                await context.SaveChangesAsync();
+        }
+
+        public async Task<List<Provincias>> GetProvincias()
+        {
+            return await context.Provincias.ToListAsync();
+        }
+
+        public async Task<List<Imagen>> GetImagenesVilla(int idvilla)
+        {
+            var consulta = from datos in this.context.Imagenes
+                           where datos.IdVilla == idvilla
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<Imagen> FindImagenVilla(int idimagen)
+        {
+            var consulta = from datos in this.context.Imagenes
+                           where datos.IdImagen == idimagen
+                           select datos;
+            return await consulta.FirstOrDefaultAsync();
+        }
+
+        public async Task DeleteImagenes(int idimagen)
+        {
+            Imagen imagen = await this.FindImagenVilla(idimagen);
+            if (imagen != null)
+            {
+                this.context.Imagenes.Remove(imagen);
+                await this.context.SaveChangesAsync();
+            }
+        }
+
+        public async Task InsertarImagenes(int idVilla,string url)
+        {
+            Imagen imagen = new Imagen();
+            imagen.IdImagen = 0;
+            imagen.IdVilla = idVilla;
+            imagen.Imgn = url;
+            await context.Imagenes.AddAsync(imagen);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteImgVilla(int idimagen)
+        {
+            Imagen imagen = await this.FindImagenVilla(idimagen);
+            if (imagen != null)
+            {
+                this.context.Imagenes.Remove(imagen);
+                await this.context.SaveChangesAsync();
+            }
+
+        }
     }
 
 }

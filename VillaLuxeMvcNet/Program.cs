@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VillaLuxeMvcNet.Data;
+using VillaLuxeMvcNet.Helpers;
 using VillaLuxeMvcNet.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
+
+builder.Services.AddSingleton<HelperPathProvider>();
+builder.Services.AddSingleton<HelperUploadImages>();
 
 string connectionString = builder.Configuration.GetConnectionString("SqlServerVillas");
 builder.Services.AddTransient<RepositoryVillas>();

@@ -1,0 +1,79 @@
+﻿@model Villa
+
+@{
+    List<Provincias> provincias = await this.repo.GetProvincias();
+}
+
+<div style="display: flex; justify-content: center; padding-top: 30px; padding-bottom: 30px;">
+    <form class="form" method="post" style="max-width:50% !important;" enctype="multipart/form-data">
+        <p class="title">Crear Villa</p> 
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <label>
+                <span>Nombre</span>
+                <input required="" placeholder="" type="text" class="input" name="nombre">
+            </label>
+
+            <label>
+                <span>Dirección</span>
+                <input required="" placeholder="" type="text" class="input" name="direccion">
+            </label>
+
+            <label>
+                <span>Comodidades</span>
+                <input required="" placeholder="" type="text" class="input" name="comodidades">
+            </label>
+
+            <label>
+                <span>Número de personas</span>
+                <input required="" placeholder="" type="number" class="input" name="personas">
+            </label>
+
+            <label>
+                <span>Número de habitaciones</span>
+                <input required="" placeholder="" type="number" class="input" name="numhabitaciones">
+            </label>
+
+            <label>
+                <span>Número de baños</span>
+                <input required="" placeholder="" type="number" class="input" name="numbanios">
+            </label>
+
+            <label>
+                <span>Ubicación</span>
+                <input required="" placeholder="" type="text" class="input" name="ubicacion">
+            </label>
+
+            <label>
+                <span>Precio por noche</span>
+                <input required="" placeholder="" type="text" class="input" name="precionoche">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Descripción</span>
+                <textarea class="input" required="" name="descripcion" rows="4" cols="50"></textarea>
+            </label>
+            <label>
+                <span>URL de la imagen Banner</span>
+                <input type="file" class="input" name="imagenCollage">
+            </label>
+            <label>
+                <span>URL de la imagen</span>
+                <input type="file" class="input" name="imagen" multiple>
+            </label>
+            <label>
+                <span>Provincia</span>
+                <select name="IdProvincia" class="input">
+                    @foreach (var provincia in provincias)
+                    {
+                        <option value="@provincia.IdProvincia">@provincia.Provincia</option>
+                    }
+                </select>
+            </label>
+        </div>
+
+        <input type="hidden" name="idvilla">
+
+        <button class="submit" style="margin-top: 20px;">Crear Villa</button>
+    </form>
+</div>

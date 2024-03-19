@@ -7,8 +7,11 @@ namespace VillaLuxeMvcNet.Data
     {
         public VillaContext(DbContextOptions<VillaContext> options) : base(options) { }
         public DbSet<Villa> Villas { get; set; }
+        public DbSet<VillaTabla> VillasT { get; set; }
+        public DbSet<Provincias> Provincias { get; set; }
         public DbSet<Reserva> Reservas { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<MisReservas> MisReservas { get; set;}
+        public DbSet<Imagen> Imagenes { get; set; }
     }
 }

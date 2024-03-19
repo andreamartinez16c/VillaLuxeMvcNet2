@@ -1,0 +1,33 @@
+﻿@model List<MisReservas>
+
+<div class="containerReservas">
+@foreach (var reserva in Model)
+{
+                        <div class="cardReservas"> 
+                                <div class="headerReservas">
+                                        <div class="div_image_vReservas" style="background-color: gray !important; padding: 20px !important;">
+                                    <div class="imageReservas">
+                                        <i class="fa-solid fa-check"></i>
+                                    </div> 
+                                </div> 
+                                <div class="contentReservas">
+                                     <span class="titleReservas">@reserva.Nombre</span> 
+                                     <hr />
+                                     <p class="messageReservas">@($"{reserva.FechaInicio.ToString("dd/MM/yyyy")} - {reserva.FechaFin.ToString("dd/MM/yyyy")}")</p> 
+                                     <p class="messageReservas">Precio total: @reserva.PrecioTotal</p> 
+                                     <p class="messageReservas">@($"{reserva.Direccion} - {reserva.Ubicacion}")</p>
+                        @if (reserva.Estado == "EN PROCESO")
+                        {
+                           <p class="btn btn-success">EN PROCESO</p>
+                        }
+                        else
+                        {
+                           <p class="btn btn-success">FINALIZADA</p>
+                        }
+
+                                </div> 
+                            </div> 
+                        </div>
+        }
+        
+</div>

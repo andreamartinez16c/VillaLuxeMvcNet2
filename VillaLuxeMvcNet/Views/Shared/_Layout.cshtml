@@ -20,7 +20,20 @@
     <!-- Load fonts style after rendering the layout styles -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
     <link rel="stylesheet" href="~/css/fontawesome.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Importar Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
+<!-- CSS personalizado para sobrescribir estilos -->
+<style>
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.flatpickr-disabled:hover {
+        cursor: not-allowed;
+            color: black;
+    background-color: #ff000021;
+}
+</style>
+
 </head>
 <body>
     <!-- Header -->
@@ -44,7 +57,8 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Villas" asp-action="Index">Villas</a>
                             </li>
-                            @if (Context.Session.GetInt32("IDUSUARIO") != null){
+                            @if (Context.Session.GetInt32("IDUSUARIO") != null && Context.Session.GetInt32("IDROL") == 1)
+                            {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Villas" asp-action="MisReservas">Mis reservas</a>
                             </li>
@@ -150,7 +164,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
            
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
      @await RenderSectionAsync("Scripts", required: false)
 

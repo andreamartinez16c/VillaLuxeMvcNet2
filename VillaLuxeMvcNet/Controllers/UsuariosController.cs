@@ -46,6 +46,7 @@ namespace VillaLuxeMvcNet.Controllers
             else
             {
                 HttpContext.Session.SetInt32("IDUSUARIO", user.IdUsuario);
+                HttpContext.Session.SetInt32("IDROL", user.IdRol);
                 TempData["BienvenidaUsuario"] = "Bienvenido " + user.Nombre; // Aquí asumimos que el nombre del usuario se encuentra en la propiedad Nombre del objeto Usuario
                 return RedirectToAction("Index", "Home");
             }

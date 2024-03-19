@@ -482,16 +482,15 @@ form {
 }
 
 .titleReservas {
-    color: #066e29;
-    font-size: 1rem;
+    color: #7e6d3b;
+    font-size: 25px;
     font-weight: 600;
-    line-height: 1.5rem;
 }
 
 .messageReservas {
     margin-top: 0.5rem;
     color: #595b5f;
-    font-size: 0.875rem;
+    font-size: 16px !important;
     line-height: 1.25rem;
 }
 
@@ -534,3 +533,6 @@ form {
         flex-basis: calc(100% - 20px); /* En pantallas pequeñas, cada tarjeta ocupa el espacio de 1 tarjeta */
     }
 }
+
+
+
