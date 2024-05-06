@@ -1,8 +1,8 @@
 ﻿@model Villa
 
 @{
-    List<Provincias> provincias = await this.repo.GetProvincias();
-    List<Imagen> imagenes = await this.repo.GetImagenesVilla(Model.IdVilla);
+    List<Provincias> provincias = await this.service.GetProvincias();
+    List<Imagen> imagenes = await this.service.GetImagenesVilla(Model.IdVilla);
 }
 
 <div style="display: flex; justify-content: center; padding-top: 30px; padding-bottom: 30px;">

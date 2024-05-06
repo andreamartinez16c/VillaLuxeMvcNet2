@@ -1,0 +1,37 @@
+﻿<div style="display: flex; justify-content: center; padding-top: 50px; padding-bottom: 50px;">
+    <form class="form" method="post">
+        <p class="title">Registro </p>
+        <p class="message">Registrate ahora para poder reservar siempre que quieras</p>
+        <div class="flex">
+            <label>
+                <input required="" placeholder="" type="text" class="input" name="nombre">
+                <span>Nombre</span>
+            </label>
+
+            <label>
+                <input required="" placeholder="" type="text" class="input" name="telefono">
+                <span>Telefono</span>
+            </label>
+        </div>
+
+        <label>
+            <input required="" placeholder="" type="email" class="input" name="email">
+            <span>Email</span>
+        </label>
+
+        <label>
+            <input required="" placeholder="" type="password" class="input" name="password">
+            <span>Contraseña</span>
+        </label>
+        <label>
+            <input required="" placeholder="" type="password" class="input">
+            <span>Confirm password</span>
+        </label>
+        <button class="submit">Submit</button>
+        <p class="signin">
+            ¿Ya tienes una cuenta?
+            <a asp-area="" asp-controller="Managed" asp-action="Login">Inicia sesión</a>
+        </p>
+    </form>
+</div>
+

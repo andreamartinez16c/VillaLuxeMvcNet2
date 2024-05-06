@@ -1,0 +1,36 @@
+﻿@model Usuario
+
+@if (TempData["RegistroExitoso"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["RegistroExitoso"]
+    </div>
+}
+
+@if (TempData["MENSAJE"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["MENSAJE"]
+    </div>
+}
+
+<div style="display: flex; justify-content: center; padding-top: 100px; padding-bottom: 100px;">
+    <form class="form" method="post">
+        <p class="title">Inicia sesión </p>
+        <label>
+            <input required="" placeholder="" type="text" class="input" name="email">
+            <span>Email</span>
+        </label>
+
+        <label>
+            <input required="" placeholder="" type="password" class="input" name="password">
+            <span>Contraseña</span>
+        </label>
+
+        <button class="submit">Conéctate</button>
+        <p class="signin">
+            ¿No tienes cuenta todavía?
+            <a asp-area="" asp-controller="Managed" asp-action="Register">Registrarse</a>
+        </p>
+    </form>
+</div>

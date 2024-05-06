@@ -1,35 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net.NetworkInformation;
+using System.Security.Claims;
+using VillaLuxeMvcNet.Filters;
 using VillaLuxeMvcNet.Helpers;
 using VillaLuxeMvcNet.Models;
 using VillaLuxeMvcNet.Repositories;
+using VillaLuxeMvcNet.Services;
 using static System.Net.Mime.MediaTypeNames;
+using System.Security.Claims;
+
 
 namespace VillaLuxeMvcNet.Controllers
 {
     public class VillasController : Controller
     {
-        private RepositoryVillas repo;
+        /*private RepositoryVillas repo;*/
+        private IRepositoryVillas service;
         private HelperPathProvider helperPathProvider;
-        public VillasController(RepositoryVillas repo, HelperPathProvider helperPathProvider)
+        public VillasController(IRepositoryVillas service, HelperPathProvider helperPathProvider)
         {
-            this.repo = repo;
+           /* this.repo = repo;*/
+            this.service = service;
             this.helperPathProvider = helperPathProvider;
         }
 
         public async Task<IActionResult> Index()
         {
-            List<Villa> villas = await this.repo.GetVillasUnicasAsync();
+            List<Villa> villas = await this.service.GetVillasUnicasAsync();
             return View(villas);
         }
 
+        [AuthorizeUsuarios]
         public async Task<IActionResult> DetallesVilla(int idvilla)
         {
-            VillaFechasResevadas fechasReservadas= new VillaFechasResevadas();
-          fechasReservadas.FechasReservadas= await this.repo.GetFechasReservadasByIdVillaAsync(idvilla);
-           fechasReservadas.Villa = await this.repo.FindVillaAsync(idvilla);
+            VillaFechasResevadas fechasReservadas= await this.service.FindVillaFechaReservadasAsync(idvilla);
+            
             return View(fechasReservadas);
         }
-
+        
         //----------------RESERVAS---------------
 
         [HttpPost]
@@ -37,9 +45,9 @@ namespace VillaLuxeMvcNet.Controllers
         {
             try
             {
-                int idusuario = HttpContext.Session.GetInt32("IDUSUARIO") ?? 0;
+                int idusuario = int.Parse(User.FindFirst("IDUSUARIO").Value);
 
-                await this.repo.CreateReserva(reserva, idusuario);
+                await this.service.CreateReserva(reserva, idusuario);
                 // Configurar un mensaje de confirmación en TempData
                 /*TempData["ReservaConfirmada"] = "¡Reserva realizada con éxito!";*/
 
@@ -56,7 +64,7 @@ namespace VillaLuxeMvcNet.Controllers
             }
         }
 
-        public async Task<IActionResult> PagoReserva(int idvilla)
+        public IActionResult PagoReserva(int idvilla)
         {
             return View();
         }
@@ -72,31 +80,31 @@ namespace VillaLuxeMvcNet.Controllers
 
         public async Task<IActionResult> MisReservas()
         {
-            int idusuario = HttpContext.Session.GetInt32("IDUSUARIO") ?? 0;
-            var reservas = await this.repo.GetMisReservas(idusuario);
+            int idusuario= int.Parse(User.FindFirst("IDUSUARIO").Value);
+            var reservas = await this.service.GetMisReservas(idusuario);
             return View(reservas);
         }
 
         public async Task<IActionResult> DeleteReserva(int idreserva)
         {
-            await this.repo.DeleteReserva(idreserva);
+            await this.service.DeleteReserva(idreserva);
             return RedirectToAction("MisReservas");
         }
         public async Task<IActionResult> DeleteVilla(int idvilla)
         {
-            List<Imagen> imagenes = await this.repo.GetImagenesVilla(idvilla);
+            List<Imagen> imagenes = await this.service.GetImagenesVilla(idvilla);
             foreach(var imagen in imagenes)
             {
-                await this.repo.DeleteImagenes(imagen.IdImagen);
+                await this.service.DeleteImagenes(imagen.IdImagen);
             }
-            await this.repo.DeleteVilla(idvilla);
+            await this.service.DeleteVilla(idvilla);
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> AllReservasVilla(int idvilla)
         {
             // Obtener la lista de reservas
-            var reservas = await this.repo.GetReservasByIdVillaVistaAsync(idvilla);
+            var reservas = await this.service.GetReservasByIdVillaVistaAsync(idvilla);
 
             // Convertir las reservas a MisReservas
             List<MisReservas> misReservas = reservas.Select(r => new MisReservas
@@ -118,19 +126,19 @@ namespace VillaLuxeMvcNet.Controllers
             return View(misReservas);
         }
 
-        public async Task<IActionResult> CreateVilla()
+        public IActionResult CreateVilla()
         {
             return View();
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> CreateVilla(VillaTabla villa, List<IFormFile> imagen, IFormFile imagenCollage)
         {
             villa.ImagenCollage = imagenCollage.FileName;
-            VillaTabla villaT = await this.repo.CreateVillaAsync(villa);
-           
+            VillaTabla villaT = await this.service.CreateVillaAsync(villa);
 
-            foreach( IFormFile img in imagen)
+
+            foreach (IFormFile img in imagen)
             {
                 string path =
                this.helperPathProvider.MapPath
@@ -142,11 +150,13 @@ namespace VillaLuxeMvcNet.Controllers
                     //AL STREAM
                     await img.CopyToAsync(stream);
                 }
-                
+
                 string urlPath =
                     this.helperPathProvider.MapUrlPath(img.FileName
                     , Folders.Images);
-                await this.repo.InsertarImagenes(villaT.IdVilla, urlPath);
+
+                //BLOBS, recoger imagen e insertarla
+                await this.service.InsertarImagenes(villaT.IdVilla, urlPath);
             }
 
             string pathBanner =
@@ -163,7 +173,8 @@ namespace VillaLuxeMvcNet.Controllers
             string urlPathBanner =
                 this.helperPathProvider.MapUrlPath(imagenCollage.FileName
                 , Folders.Images);
-            await this.repo.InsertarImagenes(villaT.IdVilla, urlPathBanner);
+
+            await this.service.InsertarImagenes(villaT.IdVilla, urlPathBanner);
 
             TempData["VillaCreada"] = "¡Villa Insertada con éxito!";
 
@@ -171,11 +182,28 @@ namespace VillaLuxeMvcNet.Controllers
             return RedirectToAction("Index");
         }
 
+        /* [HttpPost]
+         public async Task<IActionResult> CreateVilla(VillaTabla villa, IFormFile imagen, IFormFile imagenCollage)
+         {
+             villa.ImagenCollage = await this.service.UploadImageAsync(imagenCollage, "villasimagenes");
+             VillaTabla villaT = await this.service.CreateVillaAsync(villa);
+
+
+             string urlPath = await this.service.UploadImageAsync(imagen, "villasimagenes");
+             //await this.repo.InsertarImagenes(villaT.IdVilla, urlPath);
+
+
+         TempData["VillaCreada"] = "¡Villa Insertada con éxito!";
+
+             // Redirigir de vuelta a la vista DetallesVilla
+             return RedirectToAction("Index");
+         }*/
+
 
 
         public async Task<IActionResult> EditVillas(int idvilla)
         {
-            Villa villa = await this.repo.FindVillaAsync(idvilla);
+            Villa villa = await this.service.FindVillaAsync(idvilla);
             return View(villa);
     }
 
@@ -184,7 +212,7 @@ namespace VillaLuxeMvcNet.Controllers
         {
             try
             {
-                await this.repo.EditVilla(villa);
+                await this.service.EditVilla(villa);
                 // Configurar un mensaje de confirmación en TempData
                 TempData["VillaModificada"] = "¡Villa Modificada con éxito!";
 
@@ -204,7 +232,7 @@ namespace VillaLuxeMvcNet.Controllers
 
         public async Task<IActionResult> DeleteImagenModificar(int idimagen, int idvilla)
         {
-            await this.repo.DeleteImgVilla(idimagen);
+            await this.service.DeleteImagenes(idimagen);
             return RedirectToAction("EditVillas",  new { idvilla = idvilla });
         }
     }

@@ -38,7 +38,8 @@
             <label for="price-per-night">
                 <span>Precio: <b>@Model.Villa.PrecioNoche€/noche</b></span>
             </label>
-            @if(Context.Session.GetInt32("IDUSUARIO") != null){
+                @if (Context.User.Identity.IsAuthenticated)
+                {
                 <button class="submit">Reservar</button>
             }else{
                 <a class="submit" style="    text-decoration: none;

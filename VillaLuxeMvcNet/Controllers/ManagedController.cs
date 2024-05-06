@@ -3,22 +3,17 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using VillaLuxeMvcNet.Models;
-using VillaLuxeMvcNet.Repositories;
 using VillaLuxeMvcNet.Services;
+using VillaLuxeMvcNet.Repositories;
 
 namespace VillaLuxeMvcNet.Controllers
 {
-    public class UsuariosController : Controller
+    public class ManagedController : Controller
     {
-        //private RepositotyUsuarios repo;
-        /*private IRepositoryVillas service;
-        public UsuariosController(IRepositoryVillas service)
+        private IRepositoryVillas service;
+        public ManagedController(IRepositoryVillas service)
         {
-            this.service = service;
-        }
-        public IActionResult Index()
-        {
-            return View();
+            this.service = service;      
         }
 
         public IActionResult Register()
@@ -39,7 +34,7 @@ namespace VillaLuxeMvcNet.Controllers
             ViewData["MENSAJE"] = TempData["RegistroExitoso"]; // Pasar el mensaje de TempData a ViewData
             return View();
         }
-        
+
 
         [HttpPost]
         public async Task<IActionResult> Login
@@ -85,7 +80,7 @@ namespace VillaLuxeMvcNet.Controllers
             await HttpContext.SignOutAsync
                 (CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Villas");
-        }*/
+        }
 
     }
 }

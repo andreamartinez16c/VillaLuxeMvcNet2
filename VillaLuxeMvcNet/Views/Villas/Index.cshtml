@@ -1,7 +1,9 @@
-﻿@model List<Villa>
+﻿@using System.Security.Claims
+
+@model List<Villa>
 
 @{
-    List<Provincias> provincias = await this.repo.GetProvincias();
+    List<Provincias> provincias = await this.service.GetProvincias();
 }
 
 @if (TempData["VillaCreada"] != null)
@@ -30,9 +32,13 @@
         <div class="text-center mb-3 pb-3">
             <h6 class="text-success text-uppercase" style="letter-spacing: 5px;">Villas</h6>
             <h1>Nuestras Villas</h1>
-            @if (Context.Session.GetInt32("IDUSUARIO") != null && Context.Session.GetInt32("IDROL") == 2)
+            @if (Context.User.Identity.IsAuthenticated)
             {
-                <a class="text-decoration-none submit" asp-controller="Villas" asp-action="CreateVilla">Crear Nueva Villa</a>
+                @if (int.Parse(Context.User.FindFirst(ClaimTypes.Role).Value) == 2)
+                {
+                    <a class="text-decoration-none submit" asp-controller="Villas" asp-action="CreateVilla">Crear Nueva Villa</a>
+                    
+                }
             }
         </div>
         <div class="row">
@@ -58,22 +64,25 @@
                                     <h5 class="m-0">@villa.PrecioNoche €/noche</h5>
                                 </div>
                             </div>
-                            @if (Context.Session.GetInt32("IDUSUARIO") != null && Context.Session.GetInt32("IDROL") == 2)
+                            @if (Context.User.Identity.IsAuthenticated)
                             {
-                               <hr />
-                               <div style="text-align: center;">
-                                    <a class="text-decoration-none submit" asp-controller="Villas" asp-action="AllReservasVilla" asp-route-idvilla="@villa.IdVilla">
-                                        Reservas
-                                    </a>
-                                    &nbsp; <!-- Espacio entre los botones -->
-                                    <a class="text-decoration-none submit" asp-controller="Villas" asp-action="EditVillas" asp-route-idvilla="@villa.IdVilla">
-                                        Modificar
-                                    </a>
-                                    &nbsp; <!-- Espacio entre los botones -->
-                                    <a class="text-decoration-none submit" asp-controller="Villas" asp-action="DeleteVilla" asp-route-idvilla="@villa.IdVilla">
-                                        Eliminar
-                                    </a>
-                                </div>
+                                @if (int.Parse(Context.User.FindFirst(ClaimTypes.Role).Value) == 2)
+                                {
+                                     <hr />
+                                   <div style="text-align: center;">
+                                        <a class="text-decoration-none submit" asp-controller="Villas" asp-action="AllReservasVilla" asp-route-idvilla="@villa.IdVilla">
+                                            Reservas
+                                        </a>
+                                        &nbsp; <!-- Espacio entre los botones -->
+                                        <a class="text-decoration-none submit" asp-controller="Villas" asp-action="EditVillas" asp-route-idvilla="@villa.IdVilla">
+                                            Modificar
+                                        </a>
+                                        &nbsp; <!-- Espacio entre los botones -->
+                                        <a class="text-decoration-none submit" asp-controller="Villas" asp-action="DeleteVilla" asp-route-idvilla="@villa.IdVilla">
+                                            Eliminar
+                                        </a>
+                                    </div>
+                                }
                             }
                         </div>
                     </div>

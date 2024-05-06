@@ -5,7 +5,7 @@ using VillaLuxeMvcNet.Models;
 
 namespace VillaLuxeMvcNet.Repositories
 {
-    public class RepositotyUsuarios
+    public class RepositotyUsuarios: IRepositoryUsuarios
     {
         private VillaContext context;
         public RepositotyUsuarios(VillaContext context)

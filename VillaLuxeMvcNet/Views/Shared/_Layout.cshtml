@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -57,25 +59,29 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Villas" asp-action="Index">Villas</a>
                             </li>
-                            @if (Context.Session.GetInt32("IDUSUARIO") != null && Context.Session.GetInt32("IDROL") == 1)
+                            @if (Context.User.Identity.IsAuthenticated)
                             {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Villas" asp-action="MisReservas">Mis reservas</a>
-                            </li>
+                                @if (int.Parse(Context.User.FindFirst(ClaimTypes.Role).Value) == 1)
+                                {
+                                     <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Villas" asp-action="MisReservas">Mis reservas</a>
+                                    </li>
+                                }
+                               
                             }
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="AboutUs">About Us</a>
                             </li>
-                            @if (Context.Session.GetInt32("IDUSUARIO") == null)
+                            @if (Context.User.Identity.IsAuthenticated)
                             {
-                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Login"><i class="fa fa-user  mr-2"></i></a>
-                                </li> 
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Managed" asp-action="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+                                </li>
                             }else
                             {
                                 <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
-                                </li> 
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Managed" asp-action="Login"><i class="fa fa-user  mr-2"></i></a>
+                                </li>
                             }
                             
                         </ul>
