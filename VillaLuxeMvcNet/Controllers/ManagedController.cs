@@ -5,6 +5,7 @@ using System.Security.Claims;
 using VillaLuxeMvcNet.Models;
 using VillaLuxeMvcNet.Services;
 using VillaLuxeMvcNet.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace VillaLuxeMvcNet.Controllers
 {
@@ -22,10 +23,13 @@ namespace VillaLuxeMvcNet.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(string nombre, string email, string password, string telefono, int idrol)
+        public async Task<IActionResult> Register(Usuario usu, string password)
         {
-            await this.service.RegisterUser(nombre, email, password, telefono, idrol);
-            TempData["RegistroExitoso"] = "Usuario registrado"; // Cambia el nombre de la clave
+            RegisterModel register = new RegisterModel();
+            register.Usuario = usu;
+            register.Password = password;
+            await this.service.RegisterUser(register);                                  
+            TempData["RegistroExitoso"] = "Usuario registrado";
             return RedirectToAction("Login");
         }
 

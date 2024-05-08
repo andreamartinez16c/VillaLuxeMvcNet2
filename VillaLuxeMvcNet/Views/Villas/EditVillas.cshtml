@@ -53,22 +53,33 @@
                 <span>Descripción</span>
                 <textarea class="input" required="" name="descripcion" rows="4" cols="50">@Model.Descripcion</textarea>
             </label>
-
             <label>
                 <span>URL de la imagen Banner</span>
                 <input type="input" class="input" value="@Model.ImageneCollage" name="imagenCollage">
             </label>
             <span>URL de la imagen</span>
             <label style="display: grid; grid-template-columns: max-content auto;">
-   
-            @foreach (var imagen in imagenes)
+           
+
+            @if(imagenes != null)
             {
-            <div style="display: contents;">
-                <input type="text" class="input" name="imagen" value="@imagen.Imgn">
-                <a class="nav-link text-dark" asp-area="" asp-controller="Villas" asp-action="DeleteImagenModificar" asp-route-idimagen="@imagen.IdImagen" asp-route-idvilla="@imagen.IdVilla">
-                    <i class="fa-solid fa-trash"></i>
-                </a>
-            </div>
+                @foreach (var imagen in imagenes)
+                {
+                <div style="display: contents;">
+                    <input type="text" class="input" name="imagen" value="@imagen.Imgn">
+                        <a class="nav-link text-dark" asp-area=""
+                        asp-controller="Villas"
+                        asp-action="DeleteImagenModificar"
+                        asp-route-idimagen="@imagen.IdImagen"
+                        asp-route-idvilla="@imagen.IdVilla"
+                        asp-route-imagenname="@imagen.Imgn">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                </div>
+                }
+                
+            }else{
+            <input type="file" class="input" name="imagen" multiple>
             }
 </label>
 

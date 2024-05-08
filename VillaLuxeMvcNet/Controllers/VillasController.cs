@@ -19,7 +19,7 @@ namespace VillaLuxeMvcNet.Controllers
         private HelperPathProvider helperPathProvider;
         public VillasController(IRepositoryVillas service, HelperPathProvider helperPathProvider)
         {
-           /* this.repo = repo;*/
+            /* this.repo = repo;*/
             this.service = service;
             this.helperPathProvider = helperPathProvider;
         }
@@ -30,14 +30,14 @@ namespace VillaLuxeMvcNet.Controllers
             return View(villas);
         }
 
-        [AuthorizeUsuarios]
+
         public async Task<IActionResult> DetallesVilla(int idvilla)
         {
-            VillaFechasResevadas fechasReservadas= await this.service.FindVillaFechaReservadasAsync(idvilla);
-            
+            VillaFechasResevadas fechasReservadas = await this.service.FindVillaFechaReservadasAsync(idvilla);
+
             return View(fechasReservadas);
         }
-        
+
         //----------------RESERVAS---------------
 
         [HttpPost]
@@ -46,8 +46,9 @@ namespace VillaLuxeMvcNet.Controllers
             try
             {
                 int idusuario = int.Parse(User.FindFirst("IDUSUARIO").Value);
-
-                await this.service.CreateReserva(reserva, idusuario);
+                reserva.IdUsuario = idusuario;
+                reserva.Estado = "EN PROCESO";
+                await this.service.CreateReserva(reserva);
                 // Configurar un mensaje de confirmación en TempData
                 /*TempData["ReservaConfirmada"] = "¡Reserva realizada con éxito!";*/
 
@@ -80,7 +81,7 @@ namespace VillaLuxeMvcNet.Controllers
 
         public async Task<IActionResult> MisReservas()
         {
-            int idusuario= int.Parse(User.FindFirst("IDUSUARIO").Value);
+            int idusuario = int.Parse(User.FindFirst("IDUSUARIO").Value);
             var reservas = await this.service.GetMisReservas(idusuario);
             return View(reservas);
         }
@@ -93,8 +94,9 @@ namespace VillaLuxeMvcNet.Controllers
         public async Task<IActionResult> DeleteVilla(int idvilla)
         {
             List<Imagen> imagenes = await this.service.GetImagenesVilla(idvilla);
-            foreach(var imagen in imagenes)
+            foreach (var imagen in imagenes)
             {
+                await this.service.DeleteBlobAsync("villasimagenes", imagen.Imgn);
                 await this.service.DeleteImagenes(imagen.IdImagen);
             }
             await this.service.DeleteVilla(idvilla);
@@ -106,24 +108,32 @@ namespace VillaLuxeMvcNet.Controllers
             // Obtener la lista de reservas
             var reservas = await this.service.GetReservasByIdVillaVistaAsync(idvilla);
 
-            // Convertir las reservas a MisReservas
-            List<MisReservas> misReservas = reservas.Select(r => new MisReservas
+            if (reservas == null)
             {
-                IdReserva = r.IdReserva,
-                IdUsuario = r.IdUsuario,
-                IdVilla = r.IdVilla,
-                FechaInicio = r.FechaInicio,
-                FechaFin = r.FechaFin,
-                PrecioTotal = r.PrecioTotal,
-                Estado = r.Estado,
-                Nombre = r.Nombre,
-                Direccion = r.Direccion,
-                Ubicacion = r.Ubicacion,
-                Imagen = r.Imagen
-            }).ToList();
+                return View();
+            }
+            else
+            {
+                // Convertir las reservas a MisReservas
+                List<MisReservas> misReservas = reservas.Select(r => new MisReservas
+                {
+                    IdReserva = r.IdReserva,
+                    IdUsuario = r.IdUsuario,
+                    IdVilla = r.IdVilla,
+                    FechaInicio = r.FechaInicio,
+                    FechaFin = r.FechaFin,
+                    PrecioTotal = r.PrecioTotal,
+                    Estado = r.Estado,
+                    Nombre = r.Nombre,
+                    Direccion = r.Direccion,
+                    Ubicacion = r.Ubicacion,
+                    Imagen = r.Imagen
+                }).ToList();
 
-            // Pasar las MisReservas a la vista
-            return View(misReservas);
+                // Pasar las MisReservas a la vista
+                return View(misReservas);
+            }
+
         }
 
         public IActionResult CreateVilla()
@@ -131,7 +141,7 @@ namespace VillaLuxeMvcNet.Controllers
             return View();
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public async Task<IActionResult> CreateVilla(VillaTabla villa, List<IFormFile> imagen, IFormFile imagenCollage)
         {
             villa.ImagenCollage = imagenCollage.FileName;
@@ -180,36 +190,34 @@ namespace VillaLuxeMvcNet.Controllers
 
             // Redirigir de vuelta a la vista DetallesVilla
             return RedirectToAction("Index");
-        }
-
-        /* [HttpPost]
-         public async Task<IActionResult> CreateVilla(VillaTabla villa, IFormFile imagen, IFormFile imagenCollage)
-         {
-             villa.ImagenCollage = await this.service.UploadImageAsync(imagenCollage, "villasimagenes");
-             VillaTabla villaT = await this.service.CreateVillaAsync(villa);
-
-
-             string urlPath = await this.service.UploadImageAsync(imagen, "villasimagenes");
-             //await this.repo.InsertarImagenes(villaT.IdVilla, urlPath);
-
-
-         TempData["VillaCreada"] = "¡Villa Insertada con éxito!";
-
-             // Redirigir de vuelta a la vista DetallesVilla
-             return RedirectToAction("Index");
-         }*/
-
-
-
-        public async Task<IActionResult> EditVillas(int idvilla)
-        {
-            Villa villa = await this.service.FindVillaAsync(idvilla);
-            return View(villa);
-    }
+        }*/
+        /*
+                public async Task<IActionResult> DeleteImagenModificarBlobs(string containername, string blobname, int idvilla)
+                {
+                    await this.service.DeleteBlobAsync(containername, blobname);
+                    return RedirectToAction("EditVillas", new { idvilla = idvilla });
+                }*/
 
         [HttpPost]
-        public async Task<IActionResult> EditVillas(VillaTabla villa)
+        public async Task<IActionResult> EditVillas(VillaTabla villa, List<IFormFile> imagen)
         {
+            await this.service.EditVilla(villa);
+
+
+            foreach (IFormFile file in imagen)
+            {
+                string blobName = file.FileName;
+                using (Stream stream = file.OpenReadStream())
+                {
+                    await this.service.DeleteBlobAsync("villasimagenes", blobName);
+
+                    await this.service
+                        .UploadImageToBlobStorageAsync("villasimagenes", blobName, stream);
+                }
+                await this.service.DeleteImagenesName(blobName, villa.IdVilla);
+                await this.service.InsertarImagenes(villa.IdVilla, blobName);
+            }
+
             try
             {
                 await this.service.EditVilla(villa);
@@ -230,11 +238,81 @@ namespace VillaLuxeMvcNet.Controllers
 
         }
 
-        public async Task<IActionResult> DeleteImagenModificar(int idimagen, int idvilla)
+        [HttpPost]
+        public async Task<IActionResult> CreateVilla(VillaTabla villa, List<IFormFile> imagen, IFormFile imagenCollage)
+        {
+            string blobNameCollage = imagenCollage.FileName;
+            villa.ImagenCollage = blobNameCollage;
+            VillaTabla villaT = await this.service.CreateVillaAsync(villa);
+            using (Stream stream = imagenCollage.OpenReadStream())
+            {
+                await this.service
+                    .UploadImageToBlobStorageAsync("villasimagenes", blobNameCollage, stream);
+            }
+
+
+            foreach (IFormFile file in imagen)
+            {
+                string blobName = file.FileName;
+                using (Stream stream = file.OpenReadStream())
+                {
+                    await this.service
+                        .UploadImageToBlobStorageAsync("villasimagenes", blobName, stream);
+                }
+                await this.service.InsertarImagenes(villaT.IdVilla, blobName);
+
+            }
+
+            //string urlPath = await this.service.UploadImageAsync(imagen, "villasimagenes");
+            //await this.repo.InsertarImagenes(villaT.IdVilla, urlPath);
+
+
+            TempData["VillaCreada"] = "¡Villa Insertada con éxito!";
+
+            // Redirigir de vuelta a la vista DetallesVilla
+            return RedirectToAction("Index");
+        }
+
+
+
+        public async Task<IActionResult> EditVillas(int idvilla)
+        {
+            Villa villa = await this.service.FindVillaAsync(idvilla);
+            return View(villa);
+        }
+
+        /*[HttpPost]
+        public async Task<IActionResult> EditVillas(VillaTabla villa)
+        {
+            try
+            {
+                await this.service.EditVilla(villa);
+                // Configurar un mensaje de confirmación en TempData
+                TempData["VillaModificada"] = "¡Villa Modificada con éxito!";
+
+                // Redirigir de vuelta a la vista DetallesVilla
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                // Configurar un mensaje de error en TempData
+                TempData["ErrorVilla"] = ex.Message;
+
+                // Redirigir de vuelta a la vista DetallesVilla
+                return RedirectToAction("Index");
+            }
+
+        }*/
+
+        public async Task<IActionResult> DeleteImagenModificar(int idimagen, int idvilla, string imagenname)
         {
             await this.service.DeleteImagenes(idimagen);
-            return RedirectToAction("EditVillas",  new { idvilla = idvilla });
+            await this.service.DeleteBlobAsync("villasimagenes", imagenname);
+            return RedirectToAction("EditVillas", new { idvilla = idvilla });
         }
+
+
+
     }
 
 

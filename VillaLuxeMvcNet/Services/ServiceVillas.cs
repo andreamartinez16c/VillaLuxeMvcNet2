@@ -9,6 +9,7 @@ using Azure.Storage.Blobs;
 using Microsoft.Extensions.Azure;
 using Microsoft.EntityFrameworkCore;
 using VillaLuxeMvcNet.Helpers;
+using Azure.Storage.Blobs.Models;
 
 namespace VillaLuxeMvcNet.Services
 {
@@ -110,7 +111,7 @@ namespace VillaLuxeMvcNet.Services
             throw new NotImplementedException();
         }
 
-        public async Task CreateReserva(Reserva reserva, int idusuario)
+        public async Task CreateReserva(Reserva reserva)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -121,33 +122,71 @@ namespace VillaLuxeMvcNet.Services
                 string json = JsonConvert.SerializeObject(reserva);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await client.PostAsync(request, content);
+                
             }
         }
+
+        public async Task<List<BlobModel>>
+            GetBlobsAsync(string containerName)
+        {
+            //RECUPERAMOS EL CLIENT DEL CONTAINER
+            BlobContainerClient containerClient =
+                this.client.GetBlobContainerClient(containerName);
+            List<BlobModel> models = new List<BlobModel>();
+            await foreach (BlobItem item in
+                containerClient.GetBlobsAsync())
+            {
+                //name, containerName, Url
+                //DEBEMOS CREAR UN BLOBCLIENT SI NECESITAMOS 
+                //TENER MAS INFORMACION DEL BLOB
+                BlobClient blobClient =
+                    containerClient.GetBlobClient(item.Name);
+                BlobModel blob = new BlobModel();
+                blob.Nombre = item.Name;
+                blob.Contenedor = containerName;
+                blob.Url = blobClient.Uri.AbsoluteUri;
+                models.Add(blob);
+            }
+            return models;
+        }
+
 
         public async Task UploadImageToBlobStorageAsync(string containerName, string blobName, Stream stream)
         {
             BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
-            await containerClient.UploadBlobAsync(blobName, stream);
-        }
-
-        public async Task<string> UploadImageAsync(IFormFile image, string containerName)
-        {
-            // Crear un contenedor si no existe
-            var containerClient = client.GetBlobContainerClient(containerName);
-            await containerClient.CreateIfNotExistsAsync();
-
-            // Crear un blob client para la imagen
-            var blobClient = containerClient.GetBlobClient(image.FileName);
-
-            // Subir la imagen
-            using (var stream = image.OpenReadStream())
+            bool existe = false;
+            foreach (var item in await this.GetBlobsAsync(containerName))
             {
-                await blobClient.UploadAsync(stream, overwrite: true);
+                if (item.Nombre==blobName)
+                {
+                    existe = true;
+                }
             }
+            if (!existe)
+            {
+                    await containerClient.UploadBlobAsync(blobName, stream);
 
-            // Devolver la URL de la imagen
-            return blobClient.Uri.AbsoluteUri;
+            }
         }
+
+        //public async Task<string> UploadImageAsync(IFormFile image, string containerName)
+        //{
+        //    // Crear un contenedor si no existe
+        //    var containerClient = client.GetBlobContainerClient(containerName);
+        //    await containerClient.CreateIfNotExistsAsync();
+
+        //    // Crear un blob client para la imagen
+        //    var blobClient = containerClient.GetBlobClient(image.FileName);
+
+        //    // Subir la imagen
+        //    using (var stream = image.OpenReadStream())
+        //    {
+        //        await blobClient.UploadAsync(stream, overwrite: true);
+        //    }
+
+        //    // Devolver la URL de la imagen
+        //    return blobClient.Uri.AbsoluteUri;
+        //}
         public async Task<VillaTabla> CreateVillaAsync(VillaTabla villa)
         {
             using (HttpClient client = new HttpClient())
@@ -181,6 +220,17 @@ namespace VillaLuxeMvcNet.Services
             }
         }
 
+        public async Task DeleteImagenesName(string imagen, int idvilla)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "api/Villas/imagen/" + imagen + "/" + idvilla;
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                HttpResponseMessage response = await client.DeleteAsync(request);
+            }
+        }
+
         public async Task DeleteReserva(int idReserva)
         {
             using (HttpClient client = new HttpClient())
@@ -196,10 +246,14 @@ namespace VillaLuxeMvcNet.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                string request = "api/villas/" + idVilla;
+                string request = "api/villas/deletevilla/" + idVilla;
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 HttpResponseMessage response = await client.DeleteAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    return;
+                }
             }
         }
 
@@ -215,6 +269,17 @@ namespace VillaLuxeMvcNet.Services
                 HttpResponseMessage response = await client.PutAsync(request, content);
             }
         }
+
+
+        //METODO PARA ELIMINAR UN BLOB DE UN CONTAINER
+        public async Task DeleteBlobAsync(string containerName
+            , string blobName)
+        {
+            BlobContainerClient containerClient =
+                this.client.GetBlobContainerClient(containerName);
+            await containerClient.DeleteBlobAsync(blobName);
+        }
+
 
         public async Task<Imagen> FindImagenVilla(int idimagen)
         {
@@ -260,7 +325,7 @@ namespace VillaLuxeMvcNet.Services
 
         public async Task<List<MisReservas>> GetMisReservas(int idusuario)
         {
-            string request = "api/villas/usuario/" + idusuario;
+            string request = "api/Villas/usuario/" + idusuario;
             List<MisReservas> data = await this.CallApiAsync<List<MisReservas>>(request);
             return data;
         }
@@ -330,29 +395,25 @@ namespace VillaLuxeMvcNet.Services
             return content;
         }
 
-        public async Task RegisterUser(string nombre, string email, string password, string telefono, int idrol)
+        public async Task RegisterUser(RegisterModel model)
         {
             using (HttpClient client = new HttpClient())
             {
+                model.Usuario.Contrasenia = new byte[] { };
+                model.Usuario.Salt = "";
                 string request = "api/Usuario/register";
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
-
-                // Crear un objeto anónimo con los datos del usuario
-                var userData = new
-                {
-                    Nombre = nombre,
-                    Email = email,
-                    Password = password,
-                    Telefono = telefono,
-                    IdRol = idrol
-                };
-
-                // Serializar el objeto a JSON
-                string json = JsonConvert.SerializeObject(userData);
+                string json = JsonConvert.SerializeObject(model);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await client.PostAsync(request, content);
+                if(response.IsSuccessStatusCode)
+                {
+                    return;
+                }
+                else { 
+                }
             }
         }
     }

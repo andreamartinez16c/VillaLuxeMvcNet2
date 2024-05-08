@@ -33,7 +33,7 @@ namespace VillaLuxeMvcNet.Repositories
             user.IdUsuario = await this.GetMaxIdUsuarioAsync();
             user.Nombre = nombre;
             user.Email = email;
-            user.Telefono = telefono;
+            user.Telefono = telefono; 
             user.IdRol = 1;
             //CADA USUARIO TENDRA UN SALT DISTINTO
             user.Salt = HelperCryptography.GenerateSalt();

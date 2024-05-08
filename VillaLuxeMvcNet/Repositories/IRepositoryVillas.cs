@@ -5,8 +5,9 @@ namespace VillaLuxeMvcNet.Repositories
     public interface IRepositoryVillas
     {
         Task<VillaTabla> CreateVillaAsync(VillaTabla villa);
-        Task CreateReserva(Reserva reserva, int idusuario);
+        Task CreateReserva(Reserva reserva);
         Task DeleteImagenes(int idimagen);
+        Task DeleteImagenesName(string imagen, int idvilla);
         Task DeleteReserva(int idReserva);
         Task DeleteVilla(int idVilla);
         Task<Reserva> FindReserva(int idReserva);
@@ -23,9 +24,16 @@ namespace VillaLuxeMvcNet.Repositories
         Task EditVilla(VillaTabla villa);
         Task<Imagen> InsertarImagenes(int idVilla, string url);
         Task<bool> CheckFechasDisponibles(int idVilla, DateTime fechaInicio, DateTime fechaFin);
-        Task RegisterUser(string nombre, string email, string password, string telefono, int idrol);
+        Task RegisterUser(RegisterModel model);
         Task<Usuario> FindUsuarioEmailPassword(string email, string password);
         Task<string> GetTokenAsync(string username
            , string password);
+
+
+
+
+
+        Task UploadImageToBlobStorageAsync(string containerName, string blobName, Stream stream);
+        Task DeleteBlobAsync(string containerName, string blobName);
     }
 }

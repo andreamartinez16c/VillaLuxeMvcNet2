@@ -1,7 +1,9 @@
 ﻿@model List<MisReservas>
 
 <div class="containerReservas">
-@foreach (var reserva in Model)
+    @if (Model != null)
+    {
+    @foreach (var reserva in Model)
 {
                         <div class="cardReservas"> 
                                 <div class="headerReservas">
@@ -29,5 +31,13 @@
                             </div> 
                         </div>
         }
-        
+
+    }
+    else
+    {
+        <div style="height:500px">
+            <h1 class="h1" style="padding-top:20px; text-align:center">No hay reserva todavía!!</h1>
+        </div>
+    }
+
 </div>
