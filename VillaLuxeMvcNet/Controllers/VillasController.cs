@@ -40,6 +40,7 @@ namespace VillaLuxeMvcNet.Controllers
 
         //----------------RESERVAS---------------
 
+        [AuthorizeUsuarios]
         [HttpPost]
         public async Task<IActionResult> DetallesVilla(Reserva reserva)
         {

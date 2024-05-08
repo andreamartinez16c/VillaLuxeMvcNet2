@@ -38,13 +38,9 @@
             <label for="price-per-night">
                 <span>Precio: <b>@Model.Villa.PrecioNoche€/noche</b></span>
             </label>
-                @if (Context.User.Identity.IsAuthenticated)
-                {
+                
                 <button class="submit">Reservar</button>
-            }else{
-                <a class="submit" style="    text-decoration: none;
-    text-align: center;" asp-area="" asp-controller="Managed" asp-action="Login">Reservar</a>
-            }
+            
             
             
         </form>
